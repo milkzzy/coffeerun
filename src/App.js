@@ -20,7 +20,35 @@ import PendingOrders from './components/PendingOrders';
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
+  const [orders, setOrders] = useState([
+    {
+      coffee: 'mocha',
+      emailAddress: 'jake@example.com',
+      size: 'small',
+      flavor: '',
+      strength: 30,
+    },
+    {
+      coffee: 'mocha',
+      emailAddress: 'loren@example.com',
+      size: 'grande',
+      flavor: 'caramel',
+      strength: 30,
+    },
+  ]);
+
+  const addOrder = (newOrder) => {
+    setOrders((currentOrders) => [...currentOrders, newOrder]);
+  };
+
+const completeOrder = (emailAddress) => {
+  setOrders(
+    (currentOrders) => currentOrders.filter((order) => order.emailAddress !== emailAddress),
+  );
+};
+
   const toggle = () => setIsOpen(!isOpen)
+
   return (
     <Router>
       <Navbar dark color="dark" expand="md" className="mb-4">
@@ -29,7 +57,7 @@ function App() {
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
             <NavItem>
-              <NavLink tag={RRNavLink} exact to="/">Order from</NavLink>
+              <NavLink tag={RRNavLink} exact to="/">Order Form</NavLink>
             </NavItem>
             <NavItem>
               <NavLink tag={RRNavLink} to="/pending">Pending Orders</NavLink>
@@ -40,10 +68,10 @@ function App() {
       <Container>
         <Switch>
           <Route path="/pending">
-            <PendingOrders />
+            <PendingOrders pendingOrders={orders} completeOrder={completeOrder} />
           </Route>
           <Route exact path="/">
-            <OrderForm />
+            <OrderForm addOrder={addOrder} />
           </Route>
         </Switch>
       </Container>

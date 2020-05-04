@@ -1,67 +1,136 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Button,
     Card,
     CardHeader,
     CardBody,
     Form,
+    FormFeedback,
     FormGroup,
     Input,
     Label,
 } from 'reactstrap';
+import PropTypes from 'prop-types';
 
-function OrderFrom() {
+const coffeeRegex = /^[a-zA-Z\s]+$/;
+const emailRegex = /^[\w.]+@([\w]+\.)+[\w]+$/;
+
+function OrderFrom(props) {
+    const [coffee, setCoffee] = useState('');
+    const [coffeeError, setCoffeeError] = useState('');
+    const [email, setEmail] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [size, setSize] = useState('');
+    const [flavor, setFlavor] = useState('');
+    const [strength, setStrength] = useState(30);
+    const [validForm, setValidForm] = useState(false);
+
+    const sizes = [
+        { value: 'short', label: 'Short' },
+        { value: 'tall', label: 'Tall' },
+        { value: 'grande', label: 'Grande' },
+    ];
+    
+    const reset = () => {
+        setCoffee('');
+        setEmail('');
+        setSize('short');
+        setFlavor('');
+        setStrength(30);
+    };
+
+    const submit = (event) => {
+        const newOrder = {
+            coffee,
+            emailAddress: email,
+            size,
+            flavor,
+            strength,
+        };
+        props.addOrder(newOrder);
+        reset();
+        event.preventDefault();
+    };
+
+
+    useEffect(() => {
+        let error = '';
+        if (!coffee) {
+            error = 'An order is required.';
+        } else if (!coffeeRegex.test(coffee)) {
+            error = 'Your order may only contain letters and spaces.';
+        }
+        setCoffeeError(error);
+    }, [coffee]);
+
+    useEffect(() => {
+        let error = '';
+        if (!email) {
+            error = 'An email is required.';
+        } else if (!emailRegex.test(email)) {
+            error = 'Please enter a valid email.';
+        }
+        setEmailError(error);
+    }, [email]);
+
+    useEffect(() => {
+        setValidForm(!coffeeError && !emailError);
+    }, [coffeeError, emailError]);
+
     return (
         <Card>
             <CardHeader>Order Form</CardHeader>
             <CardBody>
-                <Form>
+                <Form onSubmit={submit}>
                     <FormGroup>
                         <Label for="order">Coffee Order</Label>
-                        <Input id="order" type="text" autoFocus />
+                        <Input
+                            id="order"
+                            type="text"
+                            autoFocus
+                            value={coffee}
+                            invalid={!!coffeeError}
+                            valid={!coffeeError}
+                            onChange={(event) => setCoffee(event.target.value)}
+                        />
+                        <FormFeedback>{coffeeError}</FormFeedback>
                     </FormGroup>
                     <FormGroup>
                         <Label for="emailAddress">Email</Label>
                         <Input
                             id="emailAddress"
                             type="email"
-                            placeholder="who@dr.com"
+                            value={email}
+                            invalid={!!emailError}
+                            valid={!emailError}
+                            onChange={(event) => setEmail(event.target.value)}
                         />
+                        <FormFeedback>{emailError}</FormFeedback>
                     </FormGroup>
                     <FormGroup tag="fieldset">
                         <legend style={{ fontSize: '1rem' }}>Size</legend>
-                        <FormGroup check inline>
-                            <Input
-                                type="radio"
-                                name="size"
-                                value="short"
-                                id="size-short"
-                                defaultChecked
-                            />
-                            <Label for="size-short" check>Short</Label>
-                        </FormGroup>
-                        <FormGroup check inline>
-                            <Input
-                                type="radio"
-                                name="size"
-                                value="tall"
-                                id="size-tall"
-                            />
-                            <Label for="size-tall" check>Tall</Label>
-                        </FormGroup>
-                        <FormGroup check inline>
-                            <Input
-                                type="radio"
-                                name="size"
-                                value="grande"
-                                id="size-grande"
-                            />
-                            <Label for="size-grande" check>Grande</Label>
-                        </FormGroup>
+                        {sizes.map(({ label, value }) => (
+                            <FormGroup check inline key={value}>
+                                <Input
+                                    type="radio"
+                                    name="size"
+                                    value={value}
+                                    id={`size-${label}`}
+                                    checked={size === value}
+                                    onChange={(event) => setSize(event.target.value)}
+                                />
+                                <Label for={`size-${label}`} check>{label}</Label>
+                            </FormGroup>
+                        ))}
                     </FormGroup>
                     <FormGroup>
                         <Label for="flavor">Flavor Shot</Label>
-                        <Input type="select" id="flavor">
+                        <Input
+                            type="select"
+                            id="flavor"
+                            value={flavor}
+                            onChange={(event) => setFlavor(event.target.value)}
+                        >
                             <option value="">None</option>
                             <option value="caramel">Caramel</option>
                             <option value="almond">Almond</option>
@@ -70,13 +139,26 @@ function OrderFrom() {
                     </FormGroup>
                     <FormGroup>
                         <Label for="strength">Strength</Label>
-                        <Input id="strength" type="range" min="0" max="100" step="1" defaultValue="30" />
+                        <Input
+                            id="strength"
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="1"
+                            value={strength}
+                            onChange={(event) => setStrength(parseInt(event.target.value, 10))}
+                        />
                     </FormGroup>
-                    <Button color="primary" type="submit">Submit</Button>
-                    <Button className="float-right" color="danger" type="reset">Reset</Button>
+                    <Button color="primary" type="submit" disabled={!validForm}>Submit</Button>
+                    <Button className="float-right" color="danger" onClick={reset}>Reset</Button>
                 </Form>
             </CardBody>
         </Card>
     );
 }
+
+OrderFrom.propTypes = {
+    addOrder: PropTypes.func.isRequired,
+};
+
 export default OrderFrom;
