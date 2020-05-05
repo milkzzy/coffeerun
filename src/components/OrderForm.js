@@ -11,11 +11,13 @@ import {
     Label,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { SUBMIT_ORDER } from '../store';
 
 const coffeeRegex = /^[a-zA-Z\s]+$/;
 const emailRegex = /^[\w.]+@([\w]+\.)+[\w]+$/;
 
-function OrderFrom(props) {
+function OrderForm(props) {
     const [coffee, setCoffee] = useState('');
     const [coffeeError, setCoffeeError] = useState('');
     const [email, setEmail] = useState('');
@@ -47,7 +49,10 @@ function OrderFrom(props) {
             flavor,
             strength,
         };
-        props.addOrder(newOrder);
+        props.dispatch({
+            type: SUBMIT_ORDER,
+            order: newOrder,
+        });
         reset();
         event.preventDefault();
     };
@@ -157,8 +162,8 @@ function OrderFrom(props) {
     );
 }
 
-OrderFrom.propTypes = {
-    addOrder: PropTypes.func.isRequired,
+OrderForm.propTypes = {
+    dispatch: PropTypes.func.isRequired,
 };
 
-export default OrderFrom;
+export default connect()(OrderForm);

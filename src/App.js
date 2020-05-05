@@ -15,12 +15,12 @@ import {
   Route,
   NavLink as RRNavLink,
 } from 'react-router-dom';
-import OrderForm from './components/OrderFrom';
+import OrderForm from './components/OrderForm';
 import PendingOrders from './components/PendingOrders';
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);
-  const [orders, setOrders] = useState([
+  /*const [orders, setOrders] = useState([
     {
       coffee: 'mocha',
       emailAddress: 'jake@example.com',
@@ -45,7 +45,7 @@ const completeOrder = (emailAddress) => {
   setOrders(
     (currentOrders) => currentOrders.filter((order) => order.emailAddress !== emailAddress),
   );
-};
+};*/
 
   const toggle = () => setIsOpen(!isOpen)
 
@@ -68,10 +68,10 @@ const completeOrder = (emailAddress) => {
       <Container>
         <Switch>
           <Route path="/pending">
-            <PendingOrders pendingOrders={orders} completeOrder={completeOrder} />
+            <PendingOrders />
           </Route>
           <Route exact path="/">
-            <OrderForm addOrder={addOrder} />
+            <OrderForm />
           </Route>
         </Switch>
       </Container>

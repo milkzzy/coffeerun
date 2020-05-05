@@ -6,8 +6,14 @@ import {
     Input,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { SUBMIT_ORDER, COMPLETE_ORDER } from '../store';
 
-function PendingOrders({ completeOrder, pendingOrders }) {
+function mapStateToProps(state) {
+    return { pendingOrders: state.pendingOrders };
+}
+
+function PendingOrders({ dispatch, pendingOrders }) {
     return (
         <Card>
             <CardHeader>Pending Orders</CardHeader>
@@ -17,7 +23,10 @@ function PendingOrders({ completeOrder, pendingOrders }) {
                         <li key={order.emailAddress}>
                             <Input
                                 type="checkbox"
-                                onClick={() => completeOrder(order.emailAddress)}
+                                onClick={() => dispatch({
+                                    emailAddress: order.emailAddress,
+                                    type: COMPLETE_ORDER,
+                                })}
                             />
                             {order.size}
                             {' '}
@@ -37,7 +46,7 @@ function PendingOrders({ completeOrder, pendingOrders }) {
 }
 
 PendingOrders.propTypes = {
-    completeOrder: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
     pendingOrders: PropTypes.arrayOf(PropTypes.shape({
         coffee: PropTypes.string.isRequired,
         emailAddress: PropTypes.string.isRequired,
@@ -47,4 +56,4 @@ PendingOrders.propTypes = {
     })).isRequired,
 };
 
-export default PendingOrders;
+export default connect(mapStateToProps)(PendingOrders);
